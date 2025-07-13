@@ -1,0 +1,18 @@
+# Node & React
+frontend/node_modules/
+frontend/build/
+
+# Python & Flask
+__pycache__/
+*.pyc
+.env
+backend/__pycache__/
+backend/venv/
+
+# Large Dataset
+backend/spotify_tracks_cleaned_final.csv
+
+# IDEs & OS
+.DS_Store
+*.swp
+.vscode/
