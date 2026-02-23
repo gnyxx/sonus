@@ -1,112 +1,80 @@
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuthData } from "../AuthDataContext";
+import FloatingShapes from "../FloatingShapes";
 import "../css/dashboard.css";
 import Spinner from "../spinner";
 
-const Dashboard = ({ setUser }) => {
-  const [stats, setStats] = useState(null);
-  const [displayName, setDisplayName] = useState("");
-  const [recommendations, setRecommendations] = useState([]);
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [loadingRecs, setLoadingRecs] = useState(true);
-  const [loadingTracks, setLoadingTracks] = useState(true);
+const matchTypeLabel = {
+  exact: "Exact match",
+  artist: "Artist-based",
+  unmatched: "Not in dataset",
+};
 
-  const hasRun = useRef(false);
-
-  const fetchUser = async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/me`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.error) throw new Error("Unauthorized");
-
-      setUser(data);
-      setDisplayName(data.display_name);
-    } catch (err) {
-      console.error("Failed to fetch user:", err);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      setLoadingStats(true);
-      setLoadingTracks(true);
-
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user-stats`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!data.error) {
-        setStats(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch stats:", err);
-    } finally {
-      setLoadingStats(false);
-      setLoadingTracks(false);
-    }
-  };
-
-  const fetchRecommendations = async () => {
-    try {
-      setLoadingRecs(true);
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/recommendations`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!data.error && data.recommended) {
-        setRecommendations(data.recommended);
-      }
-    } catch (err) {
-      console.error("Failed to fetch recommendations:", err);
-    } finally {
-      setLoadingRecs(false);
-    }
-  };
-
-  useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-
-    fetchUser();
-    fetchStats();
-    fetchRecommendations();
-  }, []);
+const Dashboard = () => {
+  const { user, stats, tracks, loadingStats } = useAuthData();
+  const displayName = user?.display_name ?? "";
+  const matchedCount = stats?.matched_count ?? 0;
+  const totalCount = stats?.total_count ?? (tracks.length || 50);
 
   return (
-    <div className="dashboard">
+    <div className="dashboard page-enter dashboard--with-shapes">
+      <FloatingShapes className="floating-shapes--page" />
       <div className="dashboard-content">
-        <h1>Welcome {displayName}</h1>
+        <header className="dashboard-header animate-in">
+          <h1>Welcome, {displayName}</h1>
+        </header>
 
-        <section>
+        <section className="stats-section animate-in animate-delay-1">
           <h2>📊 Your Music Stats</h2>
           {loadingStats ? (
             <Spinner />
           ) : stats ? (
-            <div className="stats">
-              <p><strong>Track Count:</strong> {stats.track_count}</p>
-              <p><strong>Average Tempo:</strong> {stats.tempo_avg} BPM</p>
-              <p><strong>Tempo Range:</strong> {stats.tempo_range[0]} - {stats.tempo_range[1]} BPM</p>
-              <p><strong>Energy Avg:</strong> {stats.energy_avg}</p>
-              <p><strong>Valence Avg:</strong> {stats.valence_avg}</p>
-              <p><strong>Danceability Avg:</strong> {stats.danceability_avg}</p>
+            <div className="stats-grid">
+              {[
+                { value: `${stats.matched_count ?? stats.track_count} / ${stats.total_count ?? 50}`, label: "Tracks matched" },
+                ...(!stats.error ? [
+                  { value: stats.tempo_avg, label: "Avg Tempo (BPM)" },
+                  { value: `${stats.tempo_range[0]}–${stats.tempo_range[1]}`, label: "Tempo Range" },
+                  { value: stats.energy_avg, label: "Energy" },
+                  { value: stats.valence_avg, label: "Valence" },
+                  { value: stats.danceability_avg, label: "Danceability" },
+                ] : []),
+              ].map((item, i) => (
+                <div key={i} className="stat-card">
+                  <span className="stat-value">{item.value}</span>
+                  <span className="stat-label">{item.label}</span>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No stats found.</p>
           )}
         </section>
 
-        <section>
-          <h2>🎧 Your Top Tracks</h2>
-          {loadingTracks ? (
+        <section className="tracks-section top-tracks-section animate-in animate-delay-2">
+          <h2>🎧 Top Tracks</h2>
+          {totalCount > 0 && (
+            <p className="tracks-matched-summary">
+              {matchedCount} of {totalCount} matched to dataset
+            </p>
+          )}
+          {loadingStats ? (
             <Spinner />
-          ) : stats?.tracks?.length > 0 ? (
-            <ul className="track-list">
-              {stats.tracks.map((track, index) => (
-                <li key={index}>
-                  <strong>{track.track_name}</strong> by {track.artist_name}
-                  <br />
-                  Tempo: {track.tempo}, Energy: {track.energy}, Valence: {track.valence}
+          ) : tracks.length > 0 ? (
+            <ul className="track-list track-grid">
+              {tracks.map((track, index) => (
+                <li key={index} className={`track-item-in track-match-${track.match_type}`}>
+                  <span className="track-title">{track.track_name}</span>
+                  <span className="track-artist">{track.artist_name}</span>
+                  {track.match_type !== "unmatched" ? (
+                    <span className="track-meta">Tempo {track.tempo} · E {track.energy} · V {track.valence}</span>
+                  ) : (
+                    <span className="track-meta track-meta-unmatched">No features in dataset</span>
+                  )}
+                  <span className={`track-match-badge track-match-badge-${track.match_type}`} title={matchTypeLabel[track.match_type]}>
+                    {matchTypeLabel[track.match_type]}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -115,23 +83,11 @@ const Dashboard = ({ setUser }) => {
           )}
         </section>
 
-        <section>
-          <h2>🤖 Recommendations</h2>
-          {loadingRecs ? (
-            <Spinner />
-          ) : recommendations.length > 0 ? (
-            <ul className="track-list">
-              {recommendations.map((track, index) => (
-                <li key={index}>
-                  <strong>{track.track_name}</strong> by {track.artist_name}<br />
-                  Tempo: {Math.round(track.tempo)} | Energy: {track.energy.toFixed(2)} | Valence: {track.valence.toFixed(2)}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No recommendations found.</p>
-          )}
-        </section>
+        <div className="recommendations-cta animate-in animate-delay-3">
+          <Link to="/recommendations" className="cta-button">
+            Discover Recommendations →
+          </Link>
+        </div>
       </div>
     </div>
   );

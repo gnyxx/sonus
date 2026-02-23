@@ -5,12 +5,30 @@ frontend/build/
 # Python & Flask
 __pycache__/
 *.pyc
+# Never commit real credentials - only .env.example is safe
 .env
+.env.*
+!.env.example
+**/.env
+**/.env.local
 backend/__pycache__/
 backend/venv/
+.venv/
+venv/
 
-# Large Dataset
+# Large Dataset (add spotify_tracks_cleaned_final.csv manually)
 backend/spotify_tracks_cleaned_final.csv
+backend/dataset_cache.pkl
+backend/dataset_cache.parquet
+backend/dataset_cache_*.parquet
+backend/precomputed/
+backend/.cache
+
+# Database dumps and local DB files (never commit production data)
+*.db
+*.sqlite
+*.sqlite3
+*.sql
 
 # IDEs & OS
 .DS_Store

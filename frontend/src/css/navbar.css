@@ -2,73 +2,247 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 40px;
-  background: #f9f9f9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 14px 28px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: 60px;
+  gap: 24px;
 }
 
-.navbar-left .site-name {
-  font-size: 60px;
-  color: #252525;
+/* 3D navbar - glass/frosted with animated border glow */
+.nav--3d {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bg-secondary) 92%, transparent) 0%,
+    color-mix(in srgb, var(--bg-elevated) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 4px 32px var(--shadow),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  animation: nav-glow 6s ease-in-out infinite;
+  transition: border-bottom-color 0.4s ease;
 }
 
-.nav-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
+@keyframes nav-glow {
+  0%, 100% {
+    box-shadow:
+      0 4px 32px var(--shadow),
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 4px 16px color-mix(in srgb, var(--accent) 18%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+  }
+  50% {
+    box-shadow:
+      0 4px 40px var(--shadow),
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 4px 24px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 0 32px color-mix(in srgb, var(--accent) 15%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  }
 }
 
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 40px;
-  font-size: 20px;
+[data-theme="light"] .nav--3d {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bg-secondary) 94%, white) 0%,
+    color-mix(in srgb, var(--bg-elevated) 90%, white) 100%
+  );
+  box-shadow:
+    0 4px 32px var(--shadow),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
 }
 
-.nav-links a {
+/* Logo 3D - used via Logo3D component */
+.logo-3d-link {
   text-decoration: none;
-  color: #222;
-  font-weight: 500;
+  color: inherit;
+  display: flex;
 }
 
-.nav-links a:hover {
-  color: rgb(116, 12, 116);
+.logo-3d {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 4px 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-style: preserve-3d;
+}
+
+.logo-3d__text {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  display: inline-block;
+  text-shadow:
+    0 2px 4px var(--shadow),
+    0 0 20px color-mix(in srgb, var(--accent) 25%, transparent);
+  transition: text-shadow 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: logo-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes logo-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.08); }
+}
+
+.logo-3d:hover .logo-3d__text {
+  text-shadow:
+    0 6px 16px var(--shadow),
+    0 0 48px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.logo-3d__tagline {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 2px;
+  transform: translateZ(4px);
+}
+
+.nav-brand {
+  display: flex;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-theme-wrap {
+  flex-shrink: 0;
 }
 
 .nav-user {
   position: relative;
+  flex-shrink: 0;
+}
+
+.user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-primary);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-style: preserve-3d;
+}
+
+.user-trigger:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  transform: translateZ(4px) scale(1.02);
+}
+
+.user-trigger:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .user-avatar {
-  width: 60px;
-  height: 60px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  cursor: pointer;
+  object-fit: cover;
+  display: block;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 4px;
 }
 
 .dropdown {
   position: absolute;
-  top: 60px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 8px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 8px 24px var(--shadow);
   z-index: 200;
 }
 
 .dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
   background: none;
   border: none;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
-  font-size: 0.95rem;
-  padding: 6px 0;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .dropdown button:hover {
-  color: rgb(116, 12, 116);
+  background: var(--bg-elevated);
+  color: var(--accent);
+}
+
+@media screen and (max-width: 700px) {
+  .logo-3d__tagline {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .nav {
+    padding: 10px 16px;
+    min-height: 56px;
+    gap: 12px;
+  }
+
+  .nav-divider {
+    height: 24px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-trigger {
+    padding: 4px;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+  }
 }

@@ -1,42 +1,106 @@
-# 🎵 Sonus - Spotify Music Analyzer
+# SONUS
 
-Sonus is a full-stack web app built with React and Flask that analyzes your Spotify music taste and recommends songs using machine learning. 🎧
+A music recommendation web app that analyzes your Spotify listening habits and suggests new tracks.
 
 ## Features
 
-- 🔐 Spotify login with OAuth
-- 📊 Stats: tempo, energy, valence, danceability
-- 🤖 ML-powered song recommendations (KNN)
-- 🔍 Genre and BPM distribution
-- 📁 Clean separation of frontend & backend
+- Spotify OAuth login
+- Music stats (tempo, energy, valence, danceability)
+- Top tracks analysis
+- AI-powered insights based on your taste
+- Personalized recommendations via KNN on audio features
+- Recommendations page – discover new tracks based on your taste and rule based insights
+- Theme toggle – dark/light mode
 
-## Tech Stack
+## Setup
 
-- Frontend: React.js
-- Backend: Python + Flask + Spotipy
-- ML: Scikit-learn (KNN)
-- DB: MySQL
-- Dataset: ➡️ [Download Dataset from Google Drive](https://drive.google.com/file/d/12iO5maTWpShuCLXwLrTNpQWj7j0jmtuN/view?usp=sharing)  
-           ⬇️ Save it to: `backend/spotify_tracks_cleaned_final.csv`
+### Prerequisites
 
-## Environment Setup
+- Python 3.10+
+- Node.js 18+
+- MySQL
+- Spotify Developer account
+- Dataset: `spotify_tracks_cleaned_final.csv` in `backend/` (from [Kaggle](https://www.kaggle.com/datasets) or add manually)
 
-Create a .env file in the backend/ folder with the following contents:
+📁 **Note:** The `spotify_tracks_cleaned_final.csv` file is **excluded** from this repo due to size limits.
 
-- SPOTIFY_CLIENT_ID=your_spotify_client_id
-- SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-- SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
-- FLASK_SECRET_KEY=your_flask_secret_key
-- MYSQL_HOST=localhost
-- MYSQL_USER=your_mysql_user
-- MYSQL_PASSWORD=your_mysql_password
-- MYSQL_DATABASE=your_db_name
-- FRONTEND_URI=http://localhost:5173
+### Backend
 
-## 🚧 New Users Cannot Log In Directly
-Due to Spotify’s authorization rules, only users registered by the developer can access this app. If you'd like to try it out:
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your credentials (never commit .env)
+pip install -r requirements.txt
+python app.py
+```
 
-- Send me your Spotify email address, and I’ll add you to the app’s access list.
-- Once added, you’ll be able to log in with your Spotify account.
+### Frontend
 
-📁 **Note:** The `spotify_tracks_cleaned_final.csv` file is **excluded** from this repo due to size limits. 
+```bash
+cd frontend
+cp .env.example .env.local
+# Edit .env.local: REACT_APP_BACKEND_URL=http://localhost:8888
+npm install
+npm start
+```
+
+Default frontend URL: `http://localhost:3000` (CRA). Set `FRONTEND_URI` in backend `.env` to match for CORS.
+
+### Spotify App
+
+1. Create an app at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Add redirect URI: `http://localhost:8888/callback` (or your production URL)
+3. Set `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in backend `.env`
+
+### Database
+
+Create the `sonus` database and users table:
+
+```sql
+CREATE DATABASE sonus;
+USE sonus;
+CREATE TABLE users (
+  spotify_id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255)
+);
+```
+
+### Optional: Precompute Dataset
+
+For faster startup with the full dataset, run once:
+
+```bash
+cd backend
+python precompute_dataset.py
+```
+
+The app will then load from `precomputed/` instead of reprocessing the CSV on each start.
+
+## Spotify App Restrictions
+
+Due to Spotify's authorization rules, only users in your app's access list can log in. To let others try the app:
+
+1. Add them as users in your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) app settings.
+2. They can then log in with their Spotify account.
+
+## Production
+
+Set in backend `.env`:
+
+- `FLASK_ENV=production`
+- `FLASK_SECRET_KEY` – strong random key (min 32 chars)
+- `FRONTEND_URI` – your frontend URL (e.g. `https://app.example.com`)
+
+Use HTTPS. Session cookies are `Secure`, `HttpOnly`, `SameSite=Lax` in production.
+
+## Security
+
+- Rate limiting on API endpoints
+- CORS restricted to frontend origin
+- Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
+- HSTS in production
+- OAuth state validation
+- Safe redirect validation
+
+See [SECURITY.md](SECURITY.md) for credentials handling and pre-push checklist.

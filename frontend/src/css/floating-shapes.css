@@ -1,0 +1,97 @@
+/* Music-inspired floating shapes: soundwave bars, notes, vinyl */
+.floating-shapes {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Soundwave / equalizer bars */
+.floating-shapes__wavebar {
+  position: absolute;
+  border-radius: 4px;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--accent) 22%, transparent),
+    color-mix(in srgb, var(--accent) 8%, transparent)
+  );
+  height: var(--bar-min, 24px);
+  opacity: 0.45;
+  animation: wavebar-pulse 2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes wavebar-pulse {
+  0%, 100% {
+    height: var(--bar-min, 24px);
+    opacity: 0.4;
+  }
+  50% {
+    height: var(--bar-max, 48px);
+    opacity: 0.6;
+  }
+}
+
+/* Music note symbols */
+.floating-shapes__note {
+  position: absolute;
+  color: color-mix(in srgb, var(--accent) 20%, transparent);
+  opacity: 0.4;
+  animation: note-float 8s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes note-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-8px) rotate(5deg);
+    opacity: 0.5;
+  }
+}
+
+/* Vinyl discs */
+.floating-shapes__vinyl {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 6%, transparent) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.35;
+  animation: vinyl-drift 20s ease-in-out infinite;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.floating-shapes__vinyl-inner {
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background: var(--bg-primary);
+}
+
+@keyframes vinyl-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(6px, -10px) rotate(120deg); }
+  66% { transform: translate(-8px, 6px) rotate(240deg); }
+}
+
+/* Subtle on dashboard/recommendations */
+.floating-shapes--page .floating-shapes__wavebar {
+  opacity: 0.25;
+}
+
+.floating-shapes--page .floating-shapes__note {
+  opacity: 0.2;
+}
+
+.floating-shapes--page .floating-shapes__vinyl {
+  opacity: 0.2;
+}
