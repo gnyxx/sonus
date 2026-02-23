@@ -2,6 +2,10 @@
 
 A music recommendation web app that analyzes your Spotify listening habits and suggests new tracks.
 
+## Screenshots
+
+See the [Screenshots](Screenshots/) folder for app screenshots.
+
 ## Features
 
 - Spotify OAuth login
